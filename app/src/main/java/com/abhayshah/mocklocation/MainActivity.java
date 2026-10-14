@@ -19,6 +19,7 @@ public class MainActivity extends Activity {
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.activity_main);
+        UpdateManager.attach(this, findViewById(R.id.root));
         latitude = findViewById(R.id.latitude);
         longitude = findViewById(R.id.longitude);
         status = findViewById(R.id.status);

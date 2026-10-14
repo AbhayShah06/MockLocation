@@ -1,0 +1,7 @@
+{
+  "versionCode": 2,
+  "versionName": "0.2.0",
+  "notes": "Adds persistent mock-location operation and safe one-tap updates.",
+  "apkUrl": "https://github.com/AbhayShah06/MockLocation/releases/latest/download/MockLocation.apk",
+  "sha256": "063563A11E688E5B5A2B31E7B3659061B8656F30A753F8B62E100E14371D8C6D"
+}
