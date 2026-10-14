@@ -1,0 +1,9 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="24dp" android:background="#E4E4E4">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mock Location" android:textStyle="bold" android:textSize="26sp" android:textColor="#111111" />
+    <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Inactive — choose this app under Developer options → Select mock location app." android:textColor="#333333" />
+    <EditText android:id="@+id/latitude" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:inputType="numberDecimal|numberSigned" android:hint="Latitude" android:text="43.6532" />
+    <EditText android:id="@+id/longitude" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal|numberSigned" android:hint="Longitude" android:text="-79.3832" />
+    <Button android:id="@+id/start" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Start mock location" />
+    <Button android:id="@+id/stop" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Stop and restore real location" />
+</LinearLayout>
+
