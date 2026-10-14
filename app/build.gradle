@@ -3,6 +3,10 @@ plugins { id 'com.android.application' }
 android {
     namespace 'com.abhayshah.mocklocation'
     compileSdk 35
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
     defaultConfig {
         applicationId 'com.abhayshah.mocklocation'
         minSdk 26
@@ -10,5 +14,11 @@ android {
         versionCode 1
         versionName '0.1.0'
     }
+
+    testOptions { unitTests.returnDefaultValues = true }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
 }
 

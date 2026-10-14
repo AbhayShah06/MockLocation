@@ -2,13 +2,16 @@
 
 A personal Android test utility that publishes a chosen coordinate through Android's official **Select mock location app** developer setting. It does not attempt to evade detection, bypass app rules, or modify the device.
 
-## Starter included
+## Included
 
 - Validated latitude/longitude entry
 - Explicit active/inactive state
-- Foreground notification while spoofing is active
-- One-tap stop that removes the test provider
+- Foreground service only while active, with a persistent notification and one-tap stop
+- Location refresh every five seconds with saved state for Android service restart recovery
+- Provider cleanup on Stop and service errors
 - Native, plain Android UI
+
+The app uses Android's official Developer options → Select mock location app setting. It does not use root, hooking, detection bypasses, or analytics. Android may stop a service after force-stop, reboot, or vendor power management; a force-stopped app cannot recover until manually opened again. The notification can only be shown when notifications are allowed.
 
 ## Hard release plan
 
@@ -17,7 +20,7 @@ A personal Android test utility that publishes a chosen coordinate through Andro
 3. **Testing:** unit tests for coordinate validation; device tests proving the provider is removed on stop and failure.
 4. **Distribution:** personal sideloaded APK. The user must manually enable Developer options and select this app as the mock provider.
 
-## Build status
+## Build
 
-The source foundation is present. An APK has not been produced because this machine did not have Java or the Android SDK installed when the project was created.
+Target SDK is 35. Build with Android Studio or a local Gradle installation and Android SDK 35. Select the app in Developer options before starting a mock location. The first start asks for precise location and notification permissions.
 
