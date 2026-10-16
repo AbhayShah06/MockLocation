@@ -1,7 +1,7 @@
 {
-  "versionCode": 2,
-  "versionName": "0.2.0",
-  "notes": "Adds persistent mock-location operation and safe one-tap updates.",
-  "apkUrl": "https://github.com/AbhayShah06/MockLocation/releases/download/v0.2.0/MockLocation-0.2.0.apk",
-  "sha256": "063563A11E688E5B5A2B31E7B3659061B8656F30A753F8B62E100E14371D8C6D"
+  "versionCode": 3,
+  "versionName": "0.3.0",
+  "notes": "A complete dark redesign with saved places, one-tap reuse, last-target restoration, a real-location shortcut, direct Android setup access, clearer active state, and a proper app icon. Existing settings remain intact.",
+  "apkUrl": "https://github.com/AbhayShah06/MockLocation/releases/download/v0.3.0/MockLocation-0.3.0.apk",
+  "sha256": "97593B3987438EE638F7C8A16ACCC46302E7C42363A3F03B7C4822B24E914F03"
 }

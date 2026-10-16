@@ -1,11 +1,22 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="#101214">
-<LinearLayout android:id="@+id/root" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mock Location" android:textStyle="bold" android:textSize="26sp" android:textColor="#F4F4F4" />
-    <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Inactive — choose this app under Developer options → Select mock location app." android:textColor="#C3C8CC" />
-    <EditText android:id="@+id/latitude" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:inputType="numberDecimal|numberSigned" android:hint="Latitude" android:text="43.6532" />
-    <EditText android:id="@+id/longitude" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="numberDecimal|numberSigned" android:hint="Longitude" android:text="-79.3832" />
-    <Button android:id="@+id/start" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Start mock location" />
-    <Button android:id="@+id/stop" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Stop and restore real location" />
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="#0B0E0D">
+<LinearLayout android:id="@+id/root" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="LOCATION LAB" android:textStyle="bold" android:textSize="11sp" android:letterSpacing="0.17" android:textColor="#73E0B1" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Mock Location" android:textStyle="bold" android:textSize="36sp" android:textColor="#F2F6F4" />
+    <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:layout_marginBottom="18dp" android:textColor="#A6AFAB" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp" android:background="@drawable/bg_card">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TARGET" android:textStyle="bold" android:textSize="11sp" android:letterSpacing="0.14" android:textColor="#8D9792" />
+        <EditText android:id="@+id/latitude" android:layout_width="match_parent" android:layout_height="58dp" android:layout_marginTop="12dp" android:paddingHorizontal="16dp" android:inputType="numberDecimal|numberSigned" android:hint="Latitude" android:text="43.6532" android:textColor="#F2F6F4" android:textColorHint="#737C78" android:background="@drawable/bg_input" />
+        <EditText android:id="@+id/longitude" android:layout_width="match_parent" android:layout_height="58dp" android:layout_marginTop="10dp" android:paddingHorizontal="16dp" android:inputType="numberDecimal|numberSigned" android:hint="Longitude" android:text="-79.3832" android:textColor="#F2F6F4" android:textColorHint="#737C78" android:background="@drawable/bg_input" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp">
+            <Button android:id="@+id/useCurrent" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:text="Use real location" />
+            <Button android:id="@+id/savePlace" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:layout_marginStart="8dp" android:text="Save place" />
+        </LinearLayout>
+        <Button android:id="@+id/start" android:layout_width="match_parent" android:layout_height="58dp" android:layout_marginTop="8dp" android:text="Start here" android:textColor="#0B1712" android:background="@drawable/bg_primary" />
+        <Button android:id="@+id/stop" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="8dp" android:text="Return to real location" />
+    </LinearLayout>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="SAVED PLACES" android:textStyle="bold" android:textSize="11sp" android:letterSpacing="0.14" android:textColor="#8D9792" />
+    <LinearLayout android:id="@+id/savedPlaces" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="8dp" />
+    <Button android:id="@+id/setup" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="18dp" android:text="Open mock-location setup" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:layout_marginBottom="20dp" android:text="Android requires this app to be selected under Developer options. The persistent notification is your always-available stop control." android:textColor="#767F7B" android:textSize="12sp" />
 </LinearLayout>
 </ScrollView>
-

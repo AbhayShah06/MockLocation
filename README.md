@@ -4,7 +4,10 @@ A personal Android test utility that publishes a chosen coordinate through Andro
 
 ## Included
 
-- Validated latitude/longitude entry
+- Validated latitude/longitude entry with a focused dark interface
+- Saved one-tap places and restoration of the last target across updates
+- Use the device's last real coordinate as a starting point
+- Direct shortcut to Android's required mock-location setup
 - Explicit active/inactive state
 - Foreground service only while active, with a persistent notification and one-tap stop
 - Location refresh every five seconds with saved state for Android service restart recovery
