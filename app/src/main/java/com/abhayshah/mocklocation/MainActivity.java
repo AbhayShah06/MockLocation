@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
         latitude=findViewById(R.id.latitude);longitude=findViewById(R.id.longitude);search=findViewById(R.id.locationSearch);
         status=findViewById(R.id.status);title=findViewById(R.id.statusTitle);message=findViewById(R.id.message);summary=findViewById(R.id.actionSummary);
         start=findViewById(R.id.start);stop=findViewById(R.id.stop);find=findViewById(R.id.searchLocation);
-        setupMap();if(state==null)screen.requestFocus();updater=UpdateManager.attach(this,findViewById(R.id.updates),this::showMessage);
+        for(int iconId:new int[]{R.id.centerTarget,R.id.zoomIn,R.id.zoomOut})((TextView)findViewById(iconId)).setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP,22);setupMap();if(state==null)screen.requestFocus();updater=UpdateManager.attach(this,findViewById(R.id.updates),this::showMessage);
         start.setOnClickListener(v->startMock());stop.setOnClickListener(v->stopMock());
         findViewById(R.id.setup).setOnClickListener(v->showSetup(false));findViewById(R.id.more).setOnClickListener(v->showMore());
         findViewById(R.id.savePlace).setOnClickListener(v->saveCurrentPlace());findViewById(R.id.useCurrent).setOnClickListener(v->useCurrentLocation());findViewById(R.id.pasteLocation).setOnClickListener(v->pasteLocation());
