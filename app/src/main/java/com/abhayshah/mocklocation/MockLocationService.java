@@ -48,6 +48,7 @@ public class MockLocationService extends Service {
                 handler.postDelayed(this, UPDATE_INTERVAL_MS);
             } catch (RuntimeException error) {
                 stopAndCleanUp();
+                recordError();
                 stopSelf();
             }
         }
@@ -84,12 +85,13 @@ public class MockLocationService extends Service {
             return START_NOT_STICKY;
         }
 
-        startForeground(NOTIFICATION_ID, buildNotification());
         try {
+            startForeground(NOTIFICATION_ID, buildNotification());
             ensureTestProvider();
             locationManager.setTestProviderEnabled(PROVIDER, true);
             running = true;
-            if (!state.edit().putLong(KEY_LATITUDE, Double.doubleToRawLongBits(latitude))
+            handler.removeCallbacks(publishLocation);
+            if (!state.edit().remove("service_error").putLong(KEY_LATITUDE, Double.doubleToRawLongBits(latitude))
                     .putLong(KEY_LONGITUDE, Double.doubleToRawLongBits(longitude))
                     .putBoolean(KEY_ACTIVE, true).commit()) {
                 throw new IllegalStateException("Unable to persist active location state");
@@ -98,9 +100,15 @@ public class MockLocationService extends Service {
             return START_STICKY;
         } catch (RuntimeException error) {
             stopAndCleanUp();
+            recordError();
             stopSelf();
             return START_NOT_STICKY;
         }
+    }
+
+    private void recordError() {
+        getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString("service_error",
+                "Could not publish location. Check precise location permission and select Mock Location in Developer options, then try Start again.").apply();
     }
 
     private void ensureTestProvider() {

@@ -5,6 +5,9 @@ A personal Android test utility that publishes a chosen coordinate through Andro
 ## Included
 
 - Validated latitude/longitude entry with a focused dark interface
+- Interactive OpenStreetMap picker: tap to select, drag the pin, pan and pinch to zoom; tiles are cached in app storage
+- Address/city search runs off the UI thread and offers matching locations; availability depends on the device geocoder and internet
+- Coordinate fields, pasted links, saved places and recent targets update the map immediately
 - Saved one-tap places and restoration of the last target across updates
 - Use the device's last real coordinate as a starting point
 - Direct shortcut to Android's required mock-location setup
@@ -25,5 +28,5 @@ The app uses Android's official Developer options → Select mock location app s
 
 ## Build
 
-Target SDK is 35. Build with Android Studio or a local Gradle installation and Android SDK 35. Select the app in Developer options before starting a mock location. The first start asks for precise location and notification permissions.
+Target SDK is 35. Build with Android Studio or a local Gradle installation and Android SDK 35. Select the app in Developer options before starting a mock location. The manifest declares ACCESS_MOCK_LOCATION so Android can list the app in its selector. Start checks that selection and resumes automatically after precise location permission is granted. Notification permission is optional. Internet is used for tiles and address search; no storage permission or map API key is needed. The existing APK updater separately requests install-package access when installing an update.
 
