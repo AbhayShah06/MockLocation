@@ -18,7 +18,8 @@
 
 ## Remaining QA / release work
 - Latest system-bar inset change compiled/linted but has not been visually rechecked on device.
-- Still test stop/provider removal, target updates while active, repeated starts, permission denial/revocation, process death, background behavior, rotation, map tap/drag/pinch, address search success/offline, saved/recent/paste/share, and real-location shortcut end to end. Do not claim all features passed.
+- Stop tested: active=false and dumpsys confirms the mock provider override was removed.
+- Still test target updates while active, repeated starts, permission denial/revocation, process death, background behavior, rotation, map tap/drag/pinch, address search success/offline, saved/recent/paste/share, and real-location shortcut end to end. Do not claim all features passed.
 - Still exercise new-update availability, download failure/retry, permission return, hash/signature rejection and installer completion end to end. Unit tests cover metadata policy only.
 - Remote main/update.json currently offers version 0.3.0. Pre-existing local update.json offers version 0.3.1 with sha256=PENDING; intentionally excluded from this push. Do not publish that file as-is.
 - APK is a debug build. To distribute version 0.4.0, use the same signing identity as the installed release, upload the matching APK, then set feed versionCode=5/versionName=0.4.0, exact release URL and real SHA-256. No release or feed publication completed here.
@@ -28,3 +29,4 @@
 ## Build
 Use JDK 17 and Android SDK 35. Commands: gradlew.bat testDebugUnitTest assembleDebug lintDebug.
 Build output: app/build/outputs/apk/debug/app-debug.apk.
+
