@@ -61,7 +61,7 @@ public class ExperienceTest {
     @Test public void draftSurvivesRecreationAndNoDuplicateMenu()throws Exception{
         try(ActivityScenario<MainActivity>s=ActivityScenario.launch(MainActivity.class)){
             set(s,"-33.8688","151.2093");s.recreate();assertEquals("-33.8688",text(s,R.id.latitude));assertEquals("151.2093",text(s,R.id.longitude));
-            click(s,R.id.more);click(s,R.id.more);onView(withText("About")).inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog()).perform(androidx.test.espresso.action.ViewActions.click());dialogButton("Done");click(s,R.id.more);dialogButton("Mock-location setup");dialogButton("Cancel");
+            click(s,R.id.more);click(s,R.id.more);SystemClock.sleep(250);onView(withText("About")).inRoot(androidx.test.espresso.matcher.RootMatchers.isDialog()).perform(androidx.test.espresso.action.ViewActions.click());dialogButton("Done");SystemClock.sleep(250);click(s,R.id.more);dialogButton("Mock-location setup");dialogButton("Cancel");
             assertTrue(visible(s,R.id.start));
         }
     }

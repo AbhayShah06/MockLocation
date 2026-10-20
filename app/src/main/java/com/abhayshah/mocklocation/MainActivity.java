@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
         latitude=findViewById(R.id.latitude);longitude=findViewById(R.id.longitude);search=findViewById(R.id.locationSearch);
         status=findViewById(R.id.status);title=findViewById(R.id.statusTitle);message=findViewById(R.id.message);summary=findViewById(R.id.actionSummary);
         start=findViewById(R.id.start);stop=findViewById(R.id.stop);find=findViewById(R.id.searchLocation);
-        setupMap();updater=UpdateManager.attach(this,findViewById(R.id.updates),this::showMessage);
+        setupMap();if(state==null)screen.requestFocus();updater=UpdateManager.attach(this,findViewById(R.id.updates),this::showMessage);
         start.setOnClickListener(v->startMock());stop.setOnClickListener(v->stopMock());
         findViewById(R.id.setup).setOnClickListener(v->showSetup(false));findViewById(R.id.more).setOnClickListener(v->showMore());
         findViewById(R.id.savePlace).setOnClickListener(v->saveCurrentPlace());findViewById(R.id.useCurrent).setOnClickListener(v->useCurrentLocation());findViewById(R.id.pasteLocation).setOnClickListener(v->pasteLocation());
@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
     private void setupMap(){
         org.osmdroid.config.IConfigurationProvider config=org.osmdroid.config.Configuration.getInstance();config.setUserAgentValue("MockLocation/"+BuildConfig.VERSION_NAME+" (+https://github.com/AbhayShah06/MockLocation)");
         config.setOsmdroidBasePath(new java.io.File(getCacheDir(),"maps"));config.setOsmdroidTileCache(new java.io.File(getCacheDir(),"maps/tiles"));config.setTileFileSystemCacheMaxBytes(100L*1024*1024);config.setTileFileSystemCacheTrimBytes(75L*1024*1024);
-        map=findViewById(R.id.map);map.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);map.setMultiTouchControls(true);map.setBuiltInZoomControls(false);map.getController().setZoom(13.0);
+        map=findViewById(R.id.map);View mapFrame=(View)map.getParent();ViewGroup.LayoutParams mapSize=mapFrame.getLayoutParams();mapSize.height=dp(getResources().getConfiguration().screenHeightDp<650||getResources().getConfiguration().fontScale>=1.4f?160:240);mapFrame.setLayoutParams(mapSize);mapFrame.setClipToOutline(true);map.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);map.setMultiTouchControls(true);map.setBuiltInZoomControls(false);map.getController().setZoom(13.0);
         map.setOnTouchListener((v,event)->{v.getParent().requestDisallowInterceptTouchEvent(event.getActionMasked()!=MotionEvent.ACTION_UP&&event.getActionMasked()!=MotionEvent.ACTION_CANCEL);return false;});
         map.getOverlays().add(new org.osmdroid.views.overlay.MapEventsOverlay(new org.osmdroid.events.MapEventsReceiver(){
             public boolean singleTapConfirmedHelper(GeoPoint point){pickTarget(point,false);return true;}public boolean longPressHelper(GeoPoint point){pickTarget(point,false);return true;}
@@ -103,7 +103,7 @@ public class MainActivity extends Activity {
         if(active)status.setText("Publishing "+format(Double.longBitsToDouble(prefs().getLong("latitude",0)),Double.longBitsToDouble(prefs().getLong("longitude",0))));
         else{String error=prefs().getString("service_error",null);status.setText(error!=null?error:mockSelected()?"Choose a target to start.":"Select this app in Android's mock-location setting.");}
         findViewById(R.id.setup).setVisibility(mockSelected()?View.GONE:View.VISIBLE);
-        summary.setText(target==null?"Enter valid coordinates":format(target[0],target[1]));
+        summary.setVisibility(active&&changed?View.VISIBLE:View.GONE);summary.setText(target==null?"Enter valid coordinates":format(target[0],target[1]));
         start.setText(dispatching?"Applying…":active?(changed?"Update location":"Location active"):"Start location");start.setEnabled(!dispatching&&(!active||changed));start.setAlpha(start.isEnabled()?1f:.55f);
         stop.setVisibility(active||prefs().getBoolean("active",false)?View.VISIBLE:View.GONE);stop.setEnabled(true);
     }
@@ -133,7 +133,7 @@ public class MainActivity extends Activity {
             pendingSetupStart=resumeStart;try{startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS));}catch(RuntimeException unavailable){pendingSetupStart=false;try{startActivity(new Intent(Settings.ACTION_SETTINGS));}catch(RuntimeException noSettings){showMessage("Open Android Settings → Developer options → Select mock location app.");}}
         }));
     }
-    private void showMore(){if(dialogShowing())return;cancelSearch();present(new AlertDialog.Builder(this).setTitle("Mock Location").setItems(new String[]{"Mock-location setup","App permissions","Check for updates","About"},(d,which)->{currentDialog=null;if(which==0)showSetup(false);else if(which==1){try{startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,android.net.Uri.parse("package:"+getPackageName())));}catch(RuntimeException unavailable){showMessage("Open Android Settings → Apps → Mock Location → Permissions.");}}else if(which==2)updater.checkManually();else present(new AlertDialog.Builder(this).setTitle("Mock Location "+BuildConfig.VERSION_NAME).setMessage("Android's mock-location utility. Map data © OpenStreetMap contributors.\n\nMap tiles and address search need a connection; entered coordinates work offline.").setPositiveButton("Done",null));}));}
+    private void showMore(){if(dialogShowing())return;cancelSearch();present(new AlertDialog.Builder(this).setTitle("Mock Location").setItems(new String[]{"Mock-location setup","App permissions","Check for updates","About"},(d,which)->{d.dismiss();currentDialog=null;main.post(()->{if(which==0)showSetup(false);else if(which==1){try{startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,android.net.Uri.parse("package:"+getPackageName())));}catch(RuntimeException unavailable){showMessage("Open Android Settings → Apps → Mock Location → Permissions.");}}else if(which==2)updater.checkManually();else present(new AlertDialog.Builder(this).setTitle("Mock Location "+BuildConfig.VERSION_NAME).setMessage("Android's mock-location utility. Map data © OpenStreetMap contributors.\n\nMap tiles and address search need a connection; entered coordinates work offline.").setPositiveButton("Done",null));});}));}
 
     private void cancelSearch(){searchGeneration++;if(searchTask!=null)searchTask.cancel(true);searchTask=null;searching=false;if(find!=null)find.setText("Find");}
     private void searchLocation(){
