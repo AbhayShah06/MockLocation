@@ -1,7 +1,7 @@
 {
-  "versionCode": 3,
-  "versionName": "0.3.0",
-  "notes": "A complete dark redesign with saved places, one-tap reuse, last-target restoration, a real-location shortcut, direct Android setup access, clearer active state, and a proper app icon. Existing settings remain intact.",
-  "apkUrl": "https://github.com/AbhayShah06/MockLocation/releases/download/v0.3.0/MockLocation-0.3.0.apk",
-  "sha256": "97593B3987438EE638F7C8A16ACCC46302E7C42363A3F03B7C4822B24E914F03"
+  "versionCode": 6,
+  "versionName": "0.4.1",
+  "apkUrl": "https://github.com/AbhayShah06/MockLocation/releases/download/v0.4.1/MockLocation-0.4.1.apk",
+  "sha256": "29d4d33f8d80422ede6eab2676c8827edeeaa0c0e1c432aa593f20e8aa4fea2f",
+  "notes": "Simpler controls, clearer location state and quieter updates."
 }
