@@ -33,6 +33,8 @@ public class MockLocationService extends Service {
     private double latitude;
     private double longitude;
     private boolean running;
+    private static volatile boolean publishing;
+    static boolean isPublishing(){return publishing;}
 
     private final Runnable publishLocation = new Runnable() {
         @Override public void run() {
@@ -89,15 +91,15 @@ public class MockLocationService extends Service {
             startForeground(NOTIFICATION_ID, buildNotification());
             ensureTestProvider();
             locationManager.setTestProviderEnabled(PROVIDER, true);
-            running = true;
+            running = true;publishing=true;
             handler.removeCallbacks(publishLocation);
             if (!state.edit().remove("service_error").putLong(KEY_LATITUDE, Double.doubleToRawLongBits(latitude))
                     .putLong(KEY_LONGITUDE, Double.doubleToRawLongBits(longitude))
-                    .putBoolean(KEY_ACTIVE, true).commit()) {
+                    .putLong("session_revision",SystemClock.elapsedRealtimeNanos()).putBoolean(KEY_ACTIVE, true).commit()) {
                 throw new IllegalStateException("Unable to persist active location state");
             }
             publishLocation.run();
-            return START_STICKY;
+            return running?START_STICKY:START_NOT_STICKY;
         } catch (RuntimeException error) {
             stopAndCleanUp();
             recordError();
@@ -111,6 +113,7 @@ public class MockLocationService extends Service {
                 "Could not publish location. Check precise location permission and select Mock Location in Developer options, then try Start again.").apply();
     }
 
+    @android.annotation.SuppressLint("InlinedApi") // Integer constants are inlined; the provider overload exists since API 3.
     private void ensureTestProvider() {
         try {
             locationManager.addTestProvider(PROVIDER, false, false, false, false,
@@ -124,7 +127,7 @@ public class MockLocationService extends Service {
     }
 
     private void stopAndCleanUp() {
-        running = false;
+        running = false;publishing=false;
         handler.removeCallbacks(publishLocation);
         getSharedPreferences(PREFS, MODE_PRIVATE).edit().putBoolean(KEY_ACTIVE, false).commit();
         if (locationManager != null) {
@@ -142,7 +145,7 @@ public class MockLocationService extends Service {
     private void createNotificationChannel() {
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
                 "Mock location", NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription("Shown while this app publishes a mock location");
+        channel.setDescription("Shown while this app publishes a mock location");channel.setSound(null,null);channel.enableVibration(false);
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
     }
 
@@ -150,7 +153,7 @@ public class MockLocationService extends Service {
         Intent stopIntent = new Intent(this, MockLocationService.class).setAction(ACTION_STOP);
         PendingIntent stopPendingIntent = PendingIntent.getService(this, 1, stopIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        Intent openIntent = new Intent(this, MainActivity.class);
+        Intent openIntent = new Intent(this, MainActivity.class).setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 2, openIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         return new Notification.Builder(this, CHANNEL_ID)
@@ -159,6 +162,7 @@ public class MockLocationService extends Service {
                 .setContentText(String.format(java.util.Locale.US, "%.6f, %.6f", latitude, longitude))
                 .setContentIntent(contentIntent)
                 .addAction(new Notification.Action.Builder(null, "Stop", stopPendingIntent).build())
+                .setOnlyAlertOnce(true).setShowWhen(false)
                 .setOngoing(true)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .build();

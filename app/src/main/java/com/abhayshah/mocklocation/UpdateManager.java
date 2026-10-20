@@ -21,69 +21,56 @@ import java.security.MessageDigest;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** Visible update status; downloads are verified before opening Android's installer. */
+/** Available-update banner; downloads are verified before opening Android's installer. */
 final class UpdateManager {
     private static final String MANIFEST = "https://raw.githubusercontent.com/AbhayShah06/MockLocation/main/update.json";
     private final Activity activity;
     private final TextView title;
     private final TextView detail;
     private final Button action;
+    private final LinearLayout banner;
+    private final java.util.function.Consumer<String> feedback;
+    interface FeedSource { String read() throws Exception; }
+    private final FeedSource feed;
+    private boolean checking,downloading,manualCheck;
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private JSONObject available;
     private boolean waitingForInstallPermission;
     private volatile boolean closed;
 
-    static UpdateManager attach(Activity activity, ViewGroup parent) {
-        return new UpdateManager(activity, parent);
+    static UpdateManager attach(Activity activity,ViewGroup parent,java.util.function.Consumer<String> feedback){return new UpdateManager(activity,parent,feedback,()->read(MANIFEST+"?t="+System.currentTimeMillis()/60000));}
+    UpdateManager(Activity a,ViewGroup parent,java.util.function.Consumer<String> feedback,FeedSource feed){
+        this.feed=feed;
+        activity=a;this.feedback=feedback;banner=new LinearLayout(a);banner.setOrientation(LinearLayout.VERTICAL);int padding=Math.round(14*a.getResources().getDisplayMetrics().density);banner.setPadding(padding,padding,padding,padding);banner.setBackgroundResource(R.drawable.bg_secondary);banner.setVisibility(android.view.View.GONE);
+        title=new TextView(a);title.setTextColor(Color.WHITE);title.setTextSize(16);detail=new TextView(a);detail.setTextColor(0xffc2d7cc);detail.setTextSize(13);banner.addView(title);banner.addView(detail);
+        LinearLayout buttons=new LinearLayout(a);action=new Button(a);action.setAllCaps(false);Button later=new Button(a);later.setText("Later");later.setAllCaps(false);buttons.addView(action,new LinearLayout.LayoutParams(0,-2,1));buttons.addView(later,new LinearLayout.LayoutParams(-2,-2));banner.addView(buttons);
+        LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-1,-2);params.bottomMargin=padding;parent.addView(banner,params);
+        action.setOnClickListener(v->install());later.setOnClickListener(v->{banner.setVisibility(android.view.View.GONE);if(!downloading&&available!=null)a.getSharedPreferences("updates",0).edit().putInt("dismissed_version",available.optInt("versionCode")).apply();});check(false);
     }
-
-    private UpdateManager(Activity a, ViewGroup parent) {
-        activity = a;
-        LinearLayout banner = new LinearLayout(a);
-        banner.setOrientation(LinearLayout.VERTICAL);
-        int padding = (int)(14 * a.getResources().getDisplayMetrics().density);
-        banner.setPadding(padding, padding, padding, padding);
-        banner.setBackgroundColor(Color.rgb(32, 58, 49));
-        title = new TextView(a); title.setTextColor(Color.WHITE); title.setTextSize(16);
-        detail = new TextView(a); detail.setTextColor(0xffc2d7cc);
-        action = new Button(a); action.setAllCaps(false);
-        banner.addView(title); banner.addView(detail); banner.addView(action);
-        parent.addView(banner, 2);
-        action.setOnClickListener(v -> { if (available == null) check(); else install(); });
-        check();
-    }
+    void checkManually(){check(true);}
 
     private void ui(Runnable task) {
         activity.runOnUiThread(() -> { if (!closed && !activity.isDestroyed()) task.run(); });
     }
 
-    private void check() {
-        title.setText("App updates"); detail.setText("Checking for updates…");
-        action.setText("Checking…"); action.setEnabled(false);
-        worker.execute(() -> {
-            try {
-                JSONObject manifest = new JSONObject(read(MANIFEST));
-                int installed = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionCode;
-                if (manifest.getInt("versionCode") > installed) {
-                    UpdatePolicy.validate(manifest.getInt("versionCode"), installed, manifest.getString("apkUrl"), manifest.getString("sha256"));
-                    ui(() -> {
-                        available = manifest; title.setText("Update " + manifest.optString("versionName") + " available");
-                        detail.setText(manifest.optString("notes", "Bug fixes and improvements"));
-                        action.setEnabled(true); action.setText("Update now");
+    private void check(boolean manual){
+        if(closed)return;if(downloading){banner.setVisibility(android.view.View.VISIBLE);return;}if(checking){manualCheck|=manual;return;}manualCheck=manual;checking=true;
+        if(manual)feedback.accept("Checking for updates…");
+        worker.execute(()->{
+            try{
+                JSONObject manifest=new JSONObject(feed.read());int installed=activity.getPackageManager().getPackageInfo(activity.getPackageName(),0).versionCode;
+                if(manifest.getInt("versionCode")>installed){
+                    UpdatePolicy.validate(manifest.getInt("versionCode"),installed,manifest.getString("apkUrl"),manifest.getString("sha256"));
+                    ui(()->{checking=false;available=manifest;title.setText("Update "+manifest.optString("versionName")+" available");detail.setText(manifest.optString("notes","App improvements"));action.setEnabled(true);action.setText("Update now");
+                        boolean dismissed=activity.getSharedPreferences("updates",0).getInt("dismissed_version",0)>=manifest.optInt("versionCode");banner.setVisibility(manualCheck||!dismissed?android.view.View.VISIBLE:android.view.View.GONE);if(manualCheck)feedback.accept(null);
                     });
-                } else ui(() -> {
-                    available = null; title.setText("You're up to date");
-                    try { detail.setText("Installed version " + activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionName); }
-                    catch (Exception ignored) { detail.setText("No newer version is available."); }
-                    action.setText("Check for updates"); action.setEnabled(true);
-                });
-            } catch (Exception error) {
-                ui(() -> { title.setText("Couldn't check for updates"); detail.setText("Check your connection and try again. You can keep using the app."); action.setText("Retry check"); action.setEnabled(true); });
-            }
+                }else ui(()->{checking=false;available=null;banner.setVisibility(android.view.View.GONE);if(manualCheck)feedback.accept("You're up to date · "+BuildConfig.VERSION_NAME);});
+            }catch(Exception error){ui(()->{checking=false;if(available==null)banner.setVisibility(android.view.View.GONE);if(manualCheck)feedback.accept("Couldn't check for updates. Check your connection and try again.");});}
         });
     }
 
     private void install() {
+        if(closed||downloading||available==null)return;
         if (!activity.getPackageManager().canRequestPackageInstalls()) {
             waitingForInstallPermission = true;
             detail.setText("Allow updates from Mock Location on the next screen. Download will continue when you return.");
@@ -91,7 +78,7 @@ final class UpdateManager {
             catch (RuntimeException e) { waitingForInstallPermission = false; detail.setText("Open Settings → Apps → Special app access → Install unknown apps, and allow Mock Location."); }
             return;
         }
-        action.setEnabled(false); action.setText("Downloading…");
+        downloading=true;action.setEnabled(false); action.setText("Downloading…");
         JSONObject manifest = available;
         worker.execute(() -> {
             File apk = new File(activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "pending-update.apk");
@@ -106,11 +93,11 @@ final class UpdateManager {
                                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
                         detail.setText("Confirm Install in Android's installer. If you cancel, tap Update now to retry.");
                     } catch (RuntimeException error) { detail.setText("Couldn't open the installer. Tap Update now to retry."); }
-                    action.setText("Update now"); action.setEnabled(true);
+                    downloading=false;action.setText("Update now"); action.setEnabled(true);
                 });
             } catch (Exception error) {
                 apk.delete();
-                ui(() -> { detail.setText("Update couldn't be downloaded or verified. Tap to retry."); action.setText("Retry update"); action.setEnabled(true); });
+                ui(() -> { downloading=false;detail.setText("Update couldn't be downloaded or verified. Tap to retry."); action.setText("Retry update"); action.setEnabled(true); });
             }
         });
     }
@@ -138,7 +125,7 @@ final class UpdateManager {
         URL url = new URL(address);
         if (!"https".equals(url.getProtocol())) throw new SecurityException("HTTPS required");
         HttpURLConnection c = (HttpURLConnection)url.openConnection();
-        c.setConnectTimeout(5000); c.setReadTimeout(15000);
+        c.setConnectTimeout(5000); c.setReadTimeout(15000);c.setUseCaches(false);c.setRequestProperty("Cache-Control","no-cache");
         c.setRequestProperty("User-Agent", "MockLocation-Updater");
         if (c.getResponseCode() != 200) { c.disconnect(); throw new IOException("HTTP error"); }
         return c;

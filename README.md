@@ -1,6 +1,6 @@
 # Mock Location
 
-A personal Android test utility that publishes a chosen coordinate through Android's official **Select mock location app** developer setting. It does not attempt to evade detection, bypass app rules, or modify the device.
+A small Android utility: choose a point, then start Android's mock-location provider. No account, root or analytics.
 
 ## Included
 

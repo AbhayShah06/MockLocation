@@ -1,13 +1,12 @@
 <resources>
     <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
-        <item name="android:fontFamily">sans</item>
-        <item name="android:colorAccent">#73E0B1</item>
-        <item name="android:windowBackground">#0B0E0D</item>
-        <item name="android:navigationBarColor">#0B0E0D</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:statusBarColor">#0B0E0D</item>
-        <item name="android:buttonStyle">@style/AppButton</item>
+        <item name="android:fontFamily">sans</item><item name="android:colorAccent">#73E0B1</item><item name="android:windowBackground">#0B0E0D</item><item name="android:navigationBarColor">#0B0E0D</item><item name="android:windowLightStatusBar">false</item><item name="android:statusBarColor">#0B0E0D</item><item name="android:buttonStyle">@style/AppButton</item>
     </style>
-    <style name="AppButton" parent="android:style/Widget.Material.Button"><item name="android:textAllCaps">false</item><item name="android:minHeight">52dp</item><item name="android:fontFamily">sans-medium</item></style>
+    <style name="AppButton" parent="android:style/Widget.Material.Button"><item name="android:textAllCaps">false</item><item name="android:minHeight">48dp</item><item name="android:minWidth">0dp</item><item name="android:fontFamily">sans-medium</item><item name="android:paddingLeft">10dp</item><item name="android:paddingRight">10dp</item></style>
+    <style name="QuietButton" parent="AppButton"><item name="android:background">@drawable/bg_secondary</item><item name="android:backgroundTint">@null</item><item name="android:textColor">#D3DFD8</item><item name="android:textSize">14sp</item></style>
+    <style name="ShortcutButton" parent="QuietButton"><item name="android:layout_width">0dp</item><item name="android:layout_height">48dp</item><item name="android:layout_weight">1</item></style>
+    <style name="MapButton" parent="QuietButton"><item name="android:layout_width">48dp</item><item name="android:layout_height">48dp</item><item name="android:textSize">22sp</item><item name="android:elevation">4dp</item></style>
+    <style name="FieldLabel"><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:layout_marginBottom">6dp</item><item name="android:textColor">#A6AFAB</item><item name="android:textSize">12sp</item></style>
+    <style name="CoordinateInput"><item name="android:layout_width">match_parent</item><item name="android:layout_height">52dp</item><item name="android:paddingHorizontal">12dp</item><item name="android:background">@drawable/bg_input</item><item name="android:inputType">numberDecimal|numberSigned</item><item name="android:singleLine">true</item><item name="android:textColor">#F2F6F4</item><item name="android:textColorHint">#8D9792</item><item name="android:textSize">14sp</item></style>
+    <style name="SectionLabel"><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:layout_marginTop">24dp</item><item name="android:layout_marginBottom">10dp</item><item name="android:textColor">#8D9792</item><item name="android:textSize">11sp</item><item name="android:textStyle">bold</item><item name="android:letterSpacing">0.1</item></style>
 </resources>
-
