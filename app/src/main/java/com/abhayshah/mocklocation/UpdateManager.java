@@ -41,6 +41,7 @@ final class UpdateManager {
     static UpdateManager attach(Activity activity,ViewGroup parent,java.util.function.Consumer<String> feedback){return new UpdateManager(activity,parent,feedback,()->read(MANIFEST+"?t="+System.currentTimeMillis()/60000));}
     UpdateManager(Activity a,ViewGroup parent,java.util.function.Consumer<String> feedback,FeedSource feed){
         this.feed=feed;
+        cleanupInstalledUpdate(a);
         activity=a;this.feedback=feedback;banner=new LinearLayout(a);banner.setOrientation(LinearLayout.VERTICAL);int padding=Math.round(14*a.getResources().getDisplayMetrics().density);banner.setPadding(padding,padding,padding,padding);banner.setBackgroundResource(R.drawable.bg_secondary);banner.setVisibility(android.view.View.GONE);
         title=new TextView(a);title.setTextColor(Color.WHITE);title.setTextSize(16);detail=new TextView(a);detail.setTextColor(0xffc2d7cc);detail.setTextSize(13);banner.addView(title);banner.addView(detail);
         LinearLayout buttons=new LinearLayout(a);action=new Button(a);action.setAllCaps(false);Button later=new Button(a);later.setText("Later");later.setAllCaps(false);buttons.addView(action,new LinearLayout.LayoutParams(0,-2,1));buttons.addView(later,new LinearLayout.LayoutParams(-2,-2));banner.addView(buttons);
@@ -91,8 +92,9 @@ final class UpdateManager {
                         Uri uri = FileProvider.getUriForFile(activity, activity.getPackageName() + ".updates", apk);
                         activity.startActivity(new Intent(Intent.ACTION_VIEW).setDataAndType(uri, "application/vnd.android.package-archive")
                                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
+                        activity.getSharedPreferences("updates", 0).edit().putInt("pending_version", manifest.getInt("versionCode")).apply();
                         detail.setText("Confirm Install in Android's installer. If you cancel, tap Update now to retry.");
-                    } catch (RuntimeException error) { detail.setText("Couldn't open the installer. Tap Update now to retry."); }
+                    } catch (Exception error) { detail.setText("Couldn't open the installer. Tap Update now to retry."); }
                     downloading=false;action.setText("Update now"); action.setEnabled(true);
                 });
             } catch (Exception error) {
@@ -103,6 +105,7 @@ final class UpdateManager {
     }
 
     void onResume() {
+        cleanupInstalledUpdate(activity);
         if (waitingForInstallPermission) {
             waitingForInstallPermission = false;
             if (activity.getPackageManager().canRequestPackageInstalls()) install();
@@ -111,6 +114,26 @@ final class UpdateManager {
     }
 
     void close() { closed = true; worker.shutdownNow(); }
+
+    static void cleanupInstalledUpdate(Activity activity) {
+        android.content.SharedPreferences prefs = activity.getSharedPreferences("updates", 0);
+        int pending = prefs.getInt("pending_version", 0);
+        try {
+            int installed = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionCode;
+            File directory = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+            if (directory == null) return;
+            File apk = new File(directory, "pending-update.apk");
+            if (pending <= 0 && apk.exists()) {
+                PackageInfo old = activity.getPackageManager().getPackageArchiveInfo(apk.getAbsolutePath(), PackageManager.GET_SIGNATURES);
+                PackageInfo current = activity.getPackageManager().getPackageInfo(activity.getPackageName(), PackageManager.GET_SIGNATURES);
+                if (old == null || !current.packageName.equals(old.packageName) || old.signatures == null
+                        || !java.util.Arrays.equals(old.signatures, current.signatures)) return;
+                pending = old.versionCode;
+            }
+            if (pending <= 0 || installed < pending) return;
+            if (!apk.exists() || apk.delete()) prefs.edit().remove("pending_version").apply();
+        } catch (android.content.pm.PackageManager.NameNotFoundException ignored) { }
+    }
 
     private void verifyPackage(File apk, int expectedVersion) throws Exception {
         PackageManager pm = activity.getPackageManager();
