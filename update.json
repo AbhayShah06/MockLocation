@@ -1,7 +1,7 @@
 {
-  "versionCode": 6,
-  "versionName": "0.4.1",
-  "apkUrl": "https://github.com/AbhayShah06/MockLocation/releases/download/v0.4.1/MockLocation-0.4.1.apk",
-  "sha256": "29d4d33f8d80422ede6eab2676c8827edeeaa0c0e1c432aa593f20e8aa4fea2f",
-  "notes": "Simpler controls, clearer location state and quieter updates."
+  "versionCode": 7,
+  "versionName": "0.4.2",
+  "apkUrl": "https://github.com/AbhayShah06/MockLocation/releases/download/v0.4.2/MockLocation-0.4.2.apk",
+  "sha256": "8448881c35065ec2fe1e74f2f378d5f57c4c965229febe19db5eb538e3a04975",
+  "notes": "Automatic cleanup after successful updates."
 }
